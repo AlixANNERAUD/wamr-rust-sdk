@@ -153,6 +153,7 @@ pub mod module;
 pub mod runtime;
 pub mod value;
 pub mod wasi_context;
+pub use wamr_sys as sys;
 
 /// all kinds of exceptions raised by WAMR
 #[derive(Debug)]
