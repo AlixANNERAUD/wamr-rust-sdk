@@ -47,7 +47,7 @@ fn check_is_espidf() -> bool {
     is_espidf
 }
 
-fn get_feature_flags() -> (String, String, String, String, String, String) {
+fn get_feature_flags() -> (String, String, String, String, String, String, String) {
     let enable_custom_section = if cfg!(feature = "custom-section") {
         "1"
     } else {
@@ -74,6 +74,11 @@ fn get_feature_flags() -> (String, String, String, String, String, String) {
     } else {
         "1"
     };
+    let instruction_metering = if cfg!(feature = "instruction-metering") {
+        "1"
+    } else {
+        "0"
+    };
 
     (
         enable_custom_section.to_string(),
@@ -82,6 +87,7 @@ fn get_feature_flags() -> (String, String, String, String, String, String) {
         enable_multi_module.to_string(),
         enable_name_section.to_string(),
         disable_hw_bound_check.to_string(),
+        instruction_metering.to_string(),
     )
 }
 
@@ -111,7 +117,7 @@ fn link_llvm_libraries(llvm_cfg_path: &String, enable_llvm_jit: &String) {
 
 fn setup_config(
     wamr_root: &PathBuf,
-    feature_flags: (String, String, String, String, String, String),
+    feature_flags: (String, String, String, String, String, String, String),
 ) -> Config {
     let (
         enable_custom_section,
@@ -120,6 +126,7 @@ fn setup_config(
         enable_multi_module,
         enable_name_section,
         disalbe_hw_bound_check,
+        instruction_metering,
     ) = feature_flags;
 
     let mut cfg = Config::new(wamr_root);
@@ -136,7 +143,8 @@ fn setup_config(
         .define("WAMR_BUILD_MULTI_MODULE", &enable_multi_module)
         .define("WAMR_BUILD_DUMP_CALL_STACK", &enable_dump_call_stack)
         .define("WAMR_BUILD_CUSTOM_NAME_SECTION", &enable_name_section)
-        .define("WAMR_BUILD_LOAD_CUSTOM_SECTION", &enable_custom_section);
+        .define("WAMR_BUILD_LOAD_CUSTOM_SECTION", &enable_custom_section)
+        .define("WASM_ENABLE_INSTRUCTION_METERING", &instruction_metering);
 
     // always assume non-empty strings for these environment variables
 
@@ -187,7 +195,11 @@ fn build_wamrc(wamr_root: &Path) {
     Config::new(&wamr_compiler_path)
         .out_dir(wamrc_build_path)
         .define("WAMR_BUILD_WITH_CUSTOM_LLVM", "1")
-        .define("LLVM_DIR", env::var("LLVM_LIB_CFG_PATH").expect("LLVM_LIB_CFG_PATH isn't specified in config.toml"))
+        .define(
+            "LLVM_DIR",
+            env::var("LLVM_LIB_CFG_PATH")
+                .expect("LLVM_LIB_CFG_PATH isn't specified in config.toml"),
+        )
         .build();
 }
 
