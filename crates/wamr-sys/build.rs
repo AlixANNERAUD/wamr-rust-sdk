@@ -144,7 +144,7 @@ fn setup_config(
         .define("WAMR_BUILD_DUMP_CALL_STACK", &enable_dump_call_stack)
         .define("WAMR_BUILD_CUSTOM_NAME_SECTION", &enable_name_section)
         .define("WAMR_BUILD_LOAD_CUSTOM_SECTION", &enable_custom_section)
-        .define("WASM_ENABLE_INSTRUCTION_METERING", &instruction_metering);
+        .define("WAMR_BUILD_INSTRUCTION_METERING", &instruction_metering);
 
     // always assume non-empty strings for these environment variables
 
